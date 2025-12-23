@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Civic Loop - Profile</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+</head>
+
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1 class="logo">My Profile</h1>
+            <a href="notifications.html" style="text-decoration: none; color: white;">
+                <div
+                    style="background: rgba(255,255,255,0.1); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <i class="material-icons-outlined" style="font-size: 1.2rem;">notifications</i>
+                </div>
+            </a>
+        </header>
+
+        <main class="content-area">
+            <div class="profile-card" style="text-align: center; padding: 40px 20px; margin-bottom: 20px;">
+                <div class="avatar" id="profile-avatar">
+                    <i class="material-icons-round" style="font-size: 2.5rem;">person</i>
+                </div>
+                <h2 id="profile-name" style="font-size: 1.5rem; margin-bottom: 5px;">Loading...</h2>
+                <p class="role" id="profile-role" style="color: var(--text-muted); font-size: 0.9rem;">Citizen Authority
+                </p>
+
+                <div
+                    style="margin-top: 15px; font-size: 0.85rem; color: var(--text-muted); background: rgba(0,0,0,0.2); display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 12px;">
+                    <i class="material-icons-outlined" style="font-size: 1rem;">calendar_today</i>
+                    <span>Joined <span id="profile-joined">...</span></span>
+                </div>
+            </div>
+
+            <div class="stats-row">
+                <div class="stat">
+                    <span class="value" id="profile-reports">0</span>
+                    <span class="label">Reports</span>
+                </div>
+                <div class="stat">
+                    <span class="value" id="profile-credits" style="color: var(--success);">0</span>
+                    <span class="label">Credits</span>
+                </div>
+                <div class="stat">
+                    <span class="value" id="profile-locked" style="color: var(--secondary);">0</span>
+                    <span class="label">Locked</span>
+                </div>
+            </div>
+
+            <!-- Achievements Section -->
+            <div class="badges-section">
+                <h3>🏆 Achievements</h3>
+                <div class="badge-grid" id="badges-grid">
+                    <!-- Badges will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <!-- Statistics Section -->
+            <div class="stats-section">
+                <h3>📊 Statistics</h3>
+
+                <div class="stat-card">
+                    <div class="stat-label">Reports by Status</div>
+                    <div class="stat-breakdown">
+                        <div class="stat-item">
+                            <span class="stat-item-value" id="stat-pending" style="color: #FFB547;">0</span>
+                            <span class="stat-item-label">Pending</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-item-value" id="stat-confirmed" style="color: #3DD598;">0</span>
+                            <span class="stat-item-label">Confirmed</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-item-value" id="stat-rejected" style="color: #FC5A5A;">0</span>
+                            <span class="stat-item-label">Rejected</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">Top Category</div>
+                    <div class="stat-value" id="stat-top-category">-</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-label">Current Streak</div>
+                    <div class="stat-value" id="stat-streak">0 days 🔥</div>
+                </div>
+            </div>
+
+            <ul class="profile-menu">
+                <li id="edit-profile-btn">
+                    <i class="material-icons-outlined">edit</i> Edit Details
+                </li>
+                <li>
+                    <a href="notifications.html"
+                        style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 15px; width: 100%;">
+                        <i class="material-icons-outlined">notifications_none</i> Notifications
+                    </a>
+                </li>
+                <li>
+                    <i class="material-icons-outlined">mail</i>
+                    <span id="profile-email" style="font-size: 0.9rem; opacity: 0.8;">...</span>
+                </li>
+                <li style="position: relative;">
+                    <div class="language-selector" id="language-selector">
+                        <span class="language-flag" id="current-lang-flag">🇬🇧</span>
+                        <span style="flex: 1;" data-i18n="language">Language</span>
+                        <i class="material-icons-outlined"
+                            style="font-size: 1rem; color: var(--text-muted);">expand_more</i>
+                    </div>
+                    <div class="language-dropdown" id="language-dropdown">
+                        <!-- Languages populated by JS -->
+                    </div>
+                </li>
+                <li style="color: #FF5E62; cursor: pointer;" id="logout-btn">
+                    <i class="material-icons-outlined" style="color: #FF5E62;">logout</i> <span
+                        data-i18n="logout">Logout</span>
+                </li>
+            </ul>
+        </main>
+
+        <div id="edit-modal" class="modal-overlay hidden">
+            <div class="modal-content">
+                <h3 style="margin-bottom: 20px;">Edit Profile</h3>
+                <form id="edit-profile-form">
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label>Full Name</label>
+                        <input type="text" id="edit-name" required placeholder="Enter new name">
+                    </div>
+
+                    <div style="display: flex; gap: 10px;">
+                        <button type="button" id="cancel-edit-btn" class="btn-primary"
+                            style="background: transparent; border: 1px solid rgba(255,255,255,0.2); color: var(--text-muted);">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn-primary">
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <nav class="bottom-nav">
+            <a href="index.html" class="nav-item">
+                <i class="material-icons-outlined icon">home</i>
+            </a>
+            <a href="camera.html" class="nav-item">
+                <i class="material-icons-outlined icon">camera</i>
+            </a>
+            <a href="redeem.html" class="nav-item">
+                <i class="material-icons-outlined icon">card_giftcard</i>
+            </a>
+
+            <a href="profile.html" class="nav-item active">
+                <i class="material-icons-round icon">person</i>
+            </a>
+        </nav>
+    </div>
+
+    <script src="translations.js" type="module"></script>
+    <script src="badges.js" type="module"></script>
+    <script src="app.js" type="module"></script>
+
+    <script type="module">
+        import { getCurrentLanguage, setLanguage, translatePage, getAvailableLanguages } from './translations.js';
+
+        // Translate page on load
+        translatePage();
+
+        // Setup language selector
+        const selector = document.getElementById('language-selector');
+        const dropdown = document.getElementById('language-dropdown');
+        const currentFlag = document.getElementById('current-lang-flag');
+        const currentName = document.getElementById('current-lang-name');
+
+        // Populate languages
+        const languages = getAvailableLanguages();
+        const currentLang = getCurrentLanguage();
+
+        languages.forEach(lang => {
+            const option = document.createElement('div');
+            option.className = `language-option ${lang.code === currentLang ? 'selected' : ''}`;
+            option.innerHTML = `
+                <span class="language-flag">${lang.flag}</span>
+                <span class="language-name">${lang.name}</span>
+            `;
+            option.addEventListener('click', () => {
+                setLanguage(lang.code);
+                location.reload();
+            });
+            dropdown.appendChild(option);
+        });
+
+        // Update current language display
+        const current = languages.find(l => l.code === currentLang);
+        if (current) {
+            currentFlag.textContent = current.flag;
+        }
+
+        // Toggle dropdown
+        selector.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdown.classList.toggle('active');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', () => {
+            dropdown.classList.remove('active');
+        });
+    </script>
+
+    <script>
+        const modal = document.getElementById('edit-modal');
+        const openBtn = document.getElementById('edit-profile-btn');
+        const closeBtn = document.getElementById('cancel-edit-btn');
+
+        if (openBtn) {
+            openBtn.addEventListener('click', () => {
+                modal.classList.remove('hidden');
+                // Small timeout allows animation to trigger
+                setTimeout(() => modal.classList.add('active'), 10);
+            });
+        }
+
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                modal.classList.remove('active');
+                setTimeout(() => modal.classList.add('hidden'), 300);
+            });
+        }
+    </script>
+</body>
+
+</html>

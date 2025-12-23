@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Civic Loop - Auth</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script>
+        // Initialize EmailJS (User needs to replace these with real keys later)
+        (function () {
+            emailjs.init("nbR8Tt_h1lNNrJGj1");
+        })();
+
+        // Tailwind Config for custom colors/animations
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    animation: {
+                        blob: "blob 7s infinite",
+                        pop: "pop 0.5s cubic-bezier(0.26, 0.53, 0.74, 1.48) forwards",
+                        "slide-up": "slide-up 0.5s ease-out forwards",
+                    },
+                    keyframes: {
+                        blob: {
+                            "0%": { transform: "translate(0px, 0px) scale(1)" },
+                            "33%": { transform: "translate(30px, -50px) scale(1.1)" },
+                            "66%": { transform: "translate(-20px, 20px) scale(0.9)" },
+                            "100%": { transform: "translate(0px, 0px) scale(1)" },
+                        },
+                        pop: {
+                            "0%": { opacity: "0", transform: "scale(0.9)" },
+                            "100%": { opacity: "1", transform: "scale(1)" },
+                        },
+                        "slide-up": {
+                            "0%": { opacity: "0", transform: "translateY(20px)" },
+                            "100%": { opacity: "1", transform: "translateY(0)" },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body
+    class="bg-slate-50 dark:bg-[#050810] text-slate-900 dark:text-white transition-colors duration-500 overflow-x-hidden overflow-y-auto">
+
+    <!-- Background Elements -->
+    <div class="relative flex min-h-screen items-center justify-center py-10 px-4">
+        <div
+            class="absolute inset-0 bg-gradient-to-br from-[#f0f9ff] via-[#e0e7ff] to-[#f8fafc] dark:from-[#0B1120] dark:via-[#1e1b4b] dark:to-[#0f172a] -z-20">
+        </div>
+        <div
+            class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-purple-400/30 dark:bg-purple-600/20 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[100px] animate-blob">
+        </div>
+        <div
+            class="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-blue-400/30 dark:bg-blue-600/20 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[100px] animate-blob animation-delay-2000">
+        </div>
+
+        <!-- Auth Card -->
+        <div
+            class="relative z-10 w-full max-w-md p-6 md:p-8 rounded-3xl border border-white/20 dark:border-slate-700 shadow-2xl animate-pop backdrop-blur-2xl bg-white/40 dark:bg-slate-900/40">
+
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <div
+                    class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-purple-600 mb-4 shadow-lg shadow-blue-500/30">
+                    <i class="ri-mail-fill text-white text-2xl"></i>
+                </div>
+                <h2 id="header-title" class="text-3xl font-bold font-heading tracking-tight">
+                    Welcome Back
+                </h2>
+                <p id="header-subtitle" class="text-slate-500 dark:text-slate-400 text-sm mt-2">
+                    Sign in to your professional workspace
+                </p>
+            </div>
+
+            <!-- Error Message -->
+            <div id="error-container"
+                class="hidden mb-4 p-3 bg-red-500/10 text-red-600 dark:text-red-400 text-xs font-bold rounded-lg border border-red-500/20 flex items-center gap-2 animate-pulse">
+                <i class="ri-delete-bin-line text-base"></i> <span id="error-text"></span>
+            </div>
+
+            <!-- VIEW: FORGOT PASSWORD -->
+            <form id="form-forgot" class="hidden space-y-5 animate-slide-up">
+                <div class="space-y-1">
+                    <label
+                        class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Email
+                        Address</label>
+                    <input type="email" id="forgot-email" required
+                        class="w-full p-3.5 pl-4 pr-10 rounded-xl bg-white/60 dark:bg-black/30 border border-slate-200 dark:border-slate-700 outline-none transition-all placeholder:text-slate-400 focus:border-blue-500"
+                        placeholder="name@work.com" />
+                </div>
+                <button type="submit" id="btn-forgot-submit"
+                    class="w-full py-4 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white font-bold text-lg shadow-lg hover:shadow-blue-500/40 hover:-translate-y-1 transition-all active:scale-95 disabled:opacity-70">
+                    Send Reset Link
+                </button>
+                <button type="button" id="btn-back-to-login"
+                    class="w-full text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 underline">Back
+                    to Login</button>
+            </form>
+
+            <!-- VIEW: LOGIN & REGISTER (STEP 1) -->
+            <form id="form-main" class="hidden space-y-5 animate-slide-up">
+
+                <!-- Name Field (Only for Register) -->
+                <div id="field-name-container" class="hidden space-y-1">
+                    <label
+                        class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Full
+                        Name</label>
+                    <input type="text" id="name"
+                        class="w-full p-3.5 rounded-xl bg-white/60 dark:bg-black/30 border border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all placeholder:text-slate-400"
+                        placeholder="John Doe" />
+                </div>
+
+                <div class="space-y-1">
+                    <label
+                        class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Email
+                        Address</label>
+                    <div class="relative">
+                        <input type="email" id="email" required
+                            class="w-full p-3.5 pl-4 pr-10 rounded-xl bg-white/60 dark:bg-black/30 border border-slate-200 dark:border-slate-700 outline-none transition-all placeholder:text-slate-400 focus:border-blue-500"
+                            placeholder="name@work.com" />
+                        <div class="absolute right-3.5 top-3.5" id="email-valid-icon">
+                            <!-- Icons injected by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-1">
+                    <label
+                        class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Password</label>
+                    <div class="relative">
+                        <input type="password" id="password" required
+                            class="w-full p-3.5 rounded-xl bg-white/60 dark:bg-black/30 border border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all placeholder:text-slate-400"
+                            placeholder="••••••••" />
+                        <button type="button" id="btn-toggle-password"
+                            class="absolute right-3.5 top-3.5 text-slate-400 hover:text-blue-500 transition-colors">
+                            <i class="ri-eye-off-line text-lg"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex justify-end hidden" id="forgot-link-container">
+                    <button type="button" id="btn-go-to-forgot"
+                        class="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline mt-1">Forgot
+                        Password?</button>
+                </div>
+
+                <button type="submit" id="btn-main-submit"
+                    class="w-full py-4 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white font-bold text-lg shadow-lg hover:shadow-blue-500/40 hover:-translate-y-1 transition-all active:scale-95 disabled:opacity-70">
+                    Sign In
+                </button>
+            </form>
+
+            <!-- VIEW: OTP VERIFY (STEP 2) -->
+            <form id="form-otp" class="hidden space-y-6 animate-slide-up">
+                <div class="flex justify-center">
+                    <input type="text" id="otp-input" maxLength="6" required
+                        class="w-full text-center text-4xl tracking-[0.5em] font-bold p-4 rounded-xl bg-white/60 dark:bg-black/30 border border-slate-200 dark:border-slate-700 focus:border-green-500 focus:ring-4 focus:ring-green-500/10 outline-none transition-all"
+                        placeholder="••••••" />
+                </div>
+                <button type="submit" id="btn-otp-submit"
+                    class="w-full py-4 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold text-lg shadow-lg hover:shadow-green-500/40 hover:-translate-y-1 transition-all active:scale-95 disabled:opacity-70">
+                    Verify & Complete
+                </button>
+                <button type="button" id="btn-back-to-signup"
+                    class="w-full text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 underline">Wrong
+                    email? Go back</button>
+            </form>
+
+            <!-- Footer for Toggle Login/Register -->
+            <div id="auth-footer" class="mt-8 pt-6 border-t border-slate-200/50 dark:border-slate-700/50 text-center">
+                <p class="text-sm text-slate-500 dark:text-slate-400">
+                    <span id="footer-text">Don't have an account?</span>
+                    <button type="button" id="btn-toggle-mode"
+                        class="ml-2 font-bold text-blue-600 dark:text-blue-400 hover:underline">
+                        Create Account
+                    </button>
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="auth.js" type="module"></script>
+</body>
+
+</html>

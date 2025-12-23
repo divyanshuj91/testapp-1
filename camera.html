@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Civic Loop - Report</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1 class="logo">Report Issue</h1>
+        </header>
+
+        <main class="content-area">
+            <div class="camera-preview-container">
+                <div class="camera-placeholder">
+                    <i class="material-icons-round" style="font-size: 3rem;">photo_camera</i>
+                    <p>Tap to take photo </p>
+                </div>
+                <!-- Live Camera Elements -->
+                <video id="camera-stream" autoplay playsinline
+                    style="display:none; width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0;"></video>
+                <canvas id="camera-canvas" style="display:none;"></canvas>
+                <input type="file" accept="image/*" capture="environment" id="camera-input" hidden>
+            </div>
+
+            <form class="report-form" id="report-form">
+                <!-- Form Content -->
+
+                <div class="form-row">
+                    <div class="form-group half-width">
+                        <label>Reporter Name</label>
+                        <input type="text" id="report-name" placeholder="Full Name" required>
+                    </div>
+
+                    <div class="form-group half-width">
+                        <label>Contact Number</label>
+                        <input type="tel" id="report-contact" placeholder="Phone Number" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group half-width">
+                        <label>Category</label>
+                        <select id="report-category" required>
+                            <option value="" disabled selected>Select</option>
+                            <option value="garbage">Garbage / Waste</option>
+                            <option value="road">Pothole / Road</option>
+                            <option value="light">Street Light</option>
+                            <option value="water">Water Leakage</option>
+                            <option value="traffic">Traffic</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group half-width">
+                        <label>Location</label>
+                        <div class="location-status compact-location">
+                            <i class="material-icons-outlined icon">location_on</i>
+                            <span id="location-text">Detecting...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Problem Address</label>
+                    <input type="text" id="report-address" placeholder="e.g., Near Main Market, Sector 4" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="report-desc" placeholder="Details..." rows="2" required></textarea>
+                </div>
+
+
+
+                <button type="submit" class="btn-primary" id="submit-btn">Submit Report</button>
+            </form>
+        </main>
+
+
+
+        <nav class="bottom-nav">
+            <a href="index.html" class="nav-item">
+                <i class="material-icons-outlined icon">home</i>
+                <span class="label">Home</span>
+            </a>
+            <a href="camera.html" class="nav-item active">
+                <i class="material-icons-round icon">camera</i>
+                <span class="label">Report</span>
+            </a>
+            <a href="redeem.html" class="nav-item">
+                <i class="material-icons-outlined icon">redeem</i>
+                <span class="label">Redeem</span>
+            </a>
+
+            <a href="profile.html" class="nav-item">
+                <i class="material-icons-outlined icon">person</i>
+                <span class="label">Profile</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Custom Success Modal (Moved outside container) -->
+    <div id="success-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-icon">✅</div>
+            <h3>Report Submitted!</h3>
+            <p>We will contact you as soon as possible.</p>
+            <button id="close-modal-btn" class="btn-primary" style="margin-top:15px; padding:10px;">Okay</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { db, auth, storage } from '../shared/firebase_config.js';
+        import { sanitizeForDatabase, limitLength, isSpam } from '../shared/sanitize.js';
+        import { collection, addDoc, serverTimestamp, doc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        // If you don't have this file yet, just comment out the import line for now.
+
+        // --- 1. CAMERA LOGIC ---
+        const cameraContainer = document.querySelector('.camera-preview-container');
+        const cameraInput = document.getElementById('camera-input');
+        const placeholder = document.querySelector('.camera-placeholder');
+        const video = document.getElementById('camera-stream');
+        const canvas = document.getElementById('camera-canvas');
+        let stream = null;
+        let isStreaming = false;
+        let hasImage = false;
+
+        async function startCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'environment', // Rear camera preferred
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    }
+                });
+                video.srcObject = stream;
+                video.style.display = 'block';
+                placeholder.style.display = 'none';
+                isStreaming = true;
+                // Clear any previous captured image
+                cameraContainer.style.backgroundImage = 'none';
+            } catch (err) {
+                console.error("Camera access denied or not supported:", err);
+                // Fallback to file input
+                cameraInput.click();
+            }
+        }
+
+        function stopCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            video.style.display = 'none';
+            isStreaming = false;
+        }
+
+        function takePhoto() {
+            // Set canvas dimensions to match video
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Convert to data URL and set as background
+            const dataUrl = canvas.toDataURL('image/png');
+            cameraContainer.style.backgroundImage = `url(${dataUrl})`;
+            cameraContainer.style.backgroundSize = 'cover';
+            cameraContainer.style.backgroundPosition = 'center';
+
+            stopCamera();
+            hasImage = true;
+
+            // Optional: You could show a "Retake" overlay here
+        }
+
+        // Main Click Handler
+        cameraContainer.addEventListener('click', () => {
+            if (isStreaming) {
+                takePhoto();
+            } else if (hasImage) {
+                // If clicked while showing an image, retake?
+                const confirmRetake = confirm("Retake photo?");
+                if (confirmRetake) {
+                    hasImage = false;
+                    startCamera();
+                }
+            } else {
+                startCamera();
+            }
+        });
+
+        // Handle File Input Fallback (if camera fails and we trigger input)
+        cameraInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    cameraContainer.style.backgroundImage = `url(${e.target.result})`;
+                    cameraContainer.style.backgroundSize = 'cover';
+                    cameraContainer.style.backgroundPosition = 'center';
+                    placeholder.style.display = 'none';
+                    hasImage = true;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // --- 2. LOCATION LOGIC ---
+        const locationText = document.getElementById('location-text');
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+                    locationText.innerHTML = `Lat: ${latitude.toFixed(4)}, Long: ${longitude.toFixed(4)}`;
+                    locationText.style.color = 'var(--success)'; // Green color on success
+                },
+                (error) => {
+                    locationText.textContent = "Location access denied.";
+                    locationText.style.color = 'var(--secondary)'; // Orange/Red on error
+                }
+            );
+        } else {
+            locationText.textContent = "Geolocation not supported.";
+        }
+
+        // --- 3. SUBMIT FORM LOGIC ---
+        const form = document.getElementById('report-form');
+        const modal = document.getElementById('success-modal');
+        const closeModal = document.getElementById('close-modal-btn');
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            // Here is where you would send data to Firebase
+            // const formData = {
+            //    name: document.getElementById('report-name').value,
+            //    category: document.getElementById('report-category').value,
+            //    ...
+            // };
+            // console.log("Submitting:", formData);
+
+            // Show Success Modal
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.add('active'), 10);
+        });
+
+        // Close Modal
+        closeModal.addEventListener('click', () => {
+            modal.classList.remove('active');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+            form.reset();
+            // Reset Camera Preview
+            cameraContainer.style.backgroundImage = 'none';
+            placeholder.style.display = 'flex';
+        });
+
+    </script>
+</body>
+
+</html>
+</body>
+
+</html>

@@ -1,0 +1,20 @@
+{
+  "name": "Civic Loop",
+  "short_name": "CivicLoop",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#1F2128",
+  "theme_color": "#6C5DD3",
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/192",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://via.placeholder.com/512",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

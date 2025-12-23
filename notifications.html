@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Civic Loop - Notifications</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="logo">Notifications</div>
+            <a href="profile.html" style="color: var(--text-white); text-decoration: none;">
+                <i class="ri-arrow-left-line" style="font-size: 1.5rem;"></i>
+            </a>
+        </header>
+
+        <main class="content-area" id="notifications-container">
+            <!-- Loading State -->
+            <div style="text-align: center; color: var(--text-grey); margin-top: 50px;">
+                <i class="ri-loader-4-line ri-spin" style="font-size: 2rem;"></i>
+                <p style="margin-top: 10px;">Loading updates...</p>
+            </div>
+        </main>
+
+        <nav class="bottom-nav">
+            <a href="index.html" class="nav-item">
+                <i class="ri-home-smile-2-line icon"></i>
+                <span class="label">Home</span>
+            </a>
+            <a href="camera.html" class="nav-item">
+                <i class="ri-camera-lens-line icon"></i>
+                <span class="label">Report</span>
+            </a>
+            <a href="profile.html" class="nav-item active">
+                <i class="ri-user-3-fill icon"></i>
+                <span class="label">Profile</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Re-use main app logic for auth but we'll add specific notification logic here or in a separate script -->
+    <script type="module">
+        import { db, auth } from '../shared/firebase_config.js';
+        import { collection, query, orderBy, limit, getDocs, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const container = document.getElementById('notifications-container');
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user || localStorage.getItem('testerBypass') === 'true') {
+                loadNotifications();
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
+        async function loadNotifications() {
+            try {
+                const user = auth.currentUser;
+                const uid = user ? user.uid : null;
+
+                // 1. Fetch Broadcasts
+                const broadcastQ = query(
+                    collection(db, "notifications"),
+                    where("targetUserId", "==", null),
+                    orderBy("timestamp", "desc"),
+                    limit(20)
+                );
+
+                // 2. Fetch Targeted
+                let targetedDocs = [];
+                if (uid) {
+                    const targetedQ = query(
+                        collection(db, "notifications"),
+                        where("targetUserId", "==", uid),
+                        orderBy("timestamp", "desc"),
+                        limit(20)
+                    );
+                    const targetedSnap = await getDocs(targetedQ);
+                    targetedDocs = targetedSnap.docs;
+                }
+
+                const broadcastSnap = await getDocs(broadcastQ);
+
+                // Merge and Sort
+                let allDocs = [...broadcastSnap.docs, ...targetedDocs];
+                allDocs.sort((a, b) => {
+                    const tA = a.data().timestamp ? a.data().timestamp.seconds : 0;
+                    const tB = b.data().timestamp ? b.data().timestamp.seconds : 0;
+                    return tB - tA;
+                });
+
+                if (allDocs.length === 0) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="ri-notification-off-line" style="font-size: 3rem; margin-bottom: 10px;"></i>
+                            <p>No new notifications</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let html = '';
+                allDocs.forEach(doc => {
+                    const data = doc.data();
+                    const date = data.timestamp ? new Date(data.timestamp.toDate()).toLocaleDateString() : 'Recent';
+
+                    html += `
+                        <div style="background: var(--bg-card); padding: 20px; border-radius: 20px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05);">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                                <h3 style="font-size: 1.1rem; color: var(--text-white); font-weight: 600;">${data.title}</h3>
+                                <span style="font-size: 0.8rem; color: var(--text-grey);">${date}</span>
+                            </div>
+                            <p style="color: #b0b3b8; line-height: 1.5; font-size: 0.95rem;">${data.message}</p>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+
+            } catch (error) {
+                console.error("Error loading notifications:", error);
+
+                // Fallback for demo/no-key scenario
+                container.innerHTML = `
+                     <div style="background: var(--bg-card); padding: 20px; border-radius: 20px; margin-bottom: 15px; border-left: 4px solid var(--primary);">
+                        <h3 style="font-size: 1.1rem; color: var(--text-white); margin-bottom: 5px;">Welcome to Civic Loop!</h3>
+                        <p style="color: var(--text-grey);">This is your notifications center. Important announcements from the admin team will appear here.</p>
+                        <span style="font-size: 0.8rem; color: var(--text-grey); display: block; margin-top: 10px;">Just now</span>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+
+</html>

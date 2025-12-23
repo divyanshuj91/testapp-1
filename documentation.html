@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Civic Loop - Guide</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+    
+    <style>
+        /* Specific Styles for Documentation */
+        .doc-section {
+            margin-bottom: 30px;
+        }
+
+        .doc-title {
+            font-size: 1.1rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Timeline / Steps Styling */
+        .timeline {
+            position: relative;
+            padding-left: 20px;
+            border-left: 2px solid rgba(255, 255, 255, 0.1);
+            margin-left: 10px;
+        }
+
+        .step-card {
+            background: rgba(30, 30, 40, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .step-card::before {
+            content: '';
+            position: absolute;
+            left: -26px; /* Align with timeline line */
+            top: 25px;
+            width: 12px;
+            height: 12px;
+            background: var(--primary);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        .step-number {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            font-weight: 800;
+        }
+
+        .step-header {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .step-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* Feature Highlight Cards */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .feature-item {
+            background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+            padding: 20px;
+            border-radius: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            gap: 15px;
+            align-items: flex-start;
+        }
+
+        .feature-icon {
+            background: rgba(108, 93, 211, 0.2);
+            color: #8B80F9;
+            min-width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        /* Warning Box */
+        .warning-box {
+            background: rgba(255, 117, 76, 0.1);
+            border: 1px solid rgba(255, 117, 76, 0.3);
+            border-radius: 16px;
+            padding: 15px;
+            color: #FF754C;
+            font-size: 0.9rem;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1 class="logo">How It Works</h1>
+            <a href="index.html" style="text-decoration: none;">
+                <div style="background: rgba(255,255,255,0.1); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
+                    <i class="material-icons-round">close</i>
+                </div>
+            </a>
+        </header>
+
+        <main class="content-area">
+            <div class="welcome-card">
+                <h2>The Trust Loop</h2>
+                <p>Civic Loop isn't just an app—it's a trust-based ecosystem. You report issues, authorities fix them, and everyone gets rewarded for playing fair.</p>
+            </div>
+
+            <div class="doc-section">
+                <div class="doc-title">
+                    <i class="material-icons-round">timeline</i> The Workflow
+                </div>
+                
+                <div class="timeline">
+                    <div class="step-card">
+                        <div class="step-number">Step 01</div>
+                        <div class="step-header">Snap & Report</div>
+                        <p class="step-desc">
+                            Use the <strong>Camera</strong> tab. You must take a LIVE photo (no gallery uploads). Our AI automatically tags the GPS location.
+                        </p>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number">Step 02</div>
+                        <div class="step-header">Work Verification</div>
+                        <p class="step-desc">
+                            A worker arrives on-site. They must be physically at the GPS location to start the job. Once finished, they upload an "After" photo.
+                        </p>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number">Step 03</div>
+                        <div class="step-header">You Validate</div>
+                        <p class="step-desc">
+                            You get a notification. Check the "After" photo. If you click <strong>Satisfied</strong>, the loop closes.
+                        </p>
+                    </div>
+
+                    <div class="step-card" style="border-color: var(--success);">
+                        <div class="step-number" style="color: var(--success);">Step 04</div>
+                        <div class="step-header">Get Rewarded</div>
+                        <p class="step-desc">
+                            Your "Locked" credits become <strong>Available</strong>. Spend them in the <strong>Redeem</strong> tab for vouchers.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="doc-section">
+                <div class="doc-title">
+                    <i class="material-icons-round">psychology</i> Smart Mechanics
+                </div>
+
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="material-icons-outlined">hub</i>
+                        </div>
+                        <div>
+                            <h4 style="margin-bottom: 5px; color: white;">Geo-Clustering</h4>
+                            <p style="font-size: 0.85rem; color: var(--text-muted);">
+                                Don't spam! If someone reported a pothole nearby (within 10m), your report merges as a "Witness Vote."
+                            </p>
+                            <div style="margin-top: 8px; font-size: 0.8rem; color: #8B80F9;">
+                                <strong>Tip:</strong> 1st Reporter gets 100% coins. Witnesses get 20%.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="material-icons-outlined">lock_clock</i>
+                        </div>
+                        <div>
+                            <h4 style="margin-bottom: 5px; color: white;">Coin Escrow</h4>
+                            <p style="font-size: 0.85rem; color: var(--text-muted);">
+                                Coins appear in your profile as <strong>Locked</strong> immediately. They only unlock when the job is verified.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="material-icons-outlined">timer_off</i>
+                        </div>
+                        <div>
+                            <h4 style="margin-bottom: 5px; color: white;">Auto-Closure</h4>
+                            <p style="font-size: 0.85rem; color: var(--text-muted);">
+                                Forget to verify? The ticket closes automatically after 3 days.
+                            </p>
+                            <div class="warning-box">
+                                <i class="material-icons-round" style="font-size: 1.2rem;">warning</i>
+                                <span>You get <strong>fewer credits</strong> if the system has to auto-close your ticket. Always verify manually!</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="doc-section">
+                <div class="doc-title">
+                    <i class="material-icons-round">map</i> App Tour
+                </div>
+                <div style="background: var(--bg-card); border-radius: 20px; padding: 20px; border: 1px solid rgba(255,255,255,0.08);">
+                    <ul style="list-style: none; display: flex; flex-direction: column; gap: 15px;">
+                        <li style="display: flex; gap: 15px; align-items: center;">
+                            <i class="material-icons-round" style="color: var(--text-muted);">home</i>
+                            <span style="color: var(--text-muted); font-size: 0.9rem;"><strong>Home:</strong> Dashboard of your active impact.</span>
+                        </li>
+                        <li style="display: flex; gap: 15px; align-items: center;">
+                            <i class="material-icons-round" style="color: var(--text-muted);">card_giftcard</i>
+                            <span style="color: var(--text-muted); font-size: 0.9rem;"><strong>Redeem:</strong> Exchange unlocked coins for vouchers.</span>
+                        </li>
+                        <li style="display: flex; gap: 15px; align-items: center;">
+                            <i class="material-icons-round" style="color: var(--text-muted);">camera</i>
+                            <span style="color: var(--text-muted); font-size: 0.9rem;"><strong>Report:</strong> The main action button. Snap & Submit.</span>
+                        </li>
+                        <li style="display: flex; gap: 15px; align-items: center;">
+                            <i class="material-icons-round" style="color: var(--text-muted);">person</i>
+                            <span style="color: var(--text-muted); font-size: 0.9rem;"><strong>Profile:</strong> View your stats and locked/unlocked balance.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div style="height: 50px;"></div>
+        </main>
+
+        <nav class="bottom-nav">
+            <a href="index.html" class="nav-item">
+                <i class="material-icons-outlined icon">home</i>
+            </a>
+            <a href="camera.html" class="nav-item">
+                <i class="material-icons-outlined icon">camera</i>
+            </a>
+            <a href="redeem.html" class="nav-item">
+                <i class="material-icons-outlined icon">redeem</i>
+            </a>
+            
+            <a href="profile.html" class="nav-item">
+                <i class="material-icons-outlined icon">person</i>
+            </a>
+        </nav>
+    </div>
+</body>
+</html>

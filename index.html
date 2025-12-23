@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Civic Loop</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined|Material+Icons+Round" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1 class="logo" data-i18n="app_name">Civic Loop</h1>
+            <div class="user-status" id="header-credits">100 Credits</div>
+        </header>
+
+        <main class="content-area">
+            <section class="welcome-card">
+                <h2 data-i18n="welcome">Welcome Back</h2>
+                <p data-i18n="welcome_message">Let's make our city cleaner, together.</p>
+                <button onclick="window.location.href='documentation.html'"
+                    style="margin-top:15px; background:white; color:#6C5DD3; padding:10px 20px; border-radius:15px; border:none; font-weight:600;"
+                    data-i18n="how_it_works">How
+                    it works</button>
+            </section>
+
+            <section class="active-reports">
+                <h3 data-i18n="your_activity">Your Activity</h3>
+                <div class="empty-state">
+                    <i class="ri-file-list-3-line" style="font-size: 2rem; margin-bottom: 10px; display:block;"></i>
+                    <p data-i18n="no_reports">No active reports yet.</p>
+                </div>
+            </section>
+        </main>
+
+        <nav class="bottom-nav">
+            <a href="index.html" class="nav-item active">
+                <i class="material-icons-round icon">home</i>
+            </a>
+
+            <a href="camera.html" class="nav-item">
+                <i class="material-icons-outlined">camera</i>
+            </a>
+
+            <a href="redeem.html" class="nav-item">
+                <i class="material-icons-outlined">redeem</i>
+            </a>
+
+            <a href="profile.html" class="nav-item">
+                <i class="material-icons-outlined">person</i>
+            </a>
+        </nav>
+    </div>
+    <script src="chatbot.js" type="module"></script>
+    <script src="app.js" type="module"></script>
+    <script type="module">
+        import { translatePage } from './translations.js';
+        translatePage();
+    </script>
+</body>
+
+</html>
