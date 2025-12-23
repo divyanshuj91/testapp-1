@@ -1,12 +1,12 @@
 // firebase_config.js
 // Paste your "firebaseConfig" object here (from the Firebase Console)
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyD9_xpyxIcxAZvlXRAYp0Y2ioWNk-fTTtU",
+  authDomain: "civicloop-18fb6.firebaseapp.com",
+  projectId: "civicloop-18fb6",
+  storageBucket: "civicloop-18fb6.firebasestorage.app",
+  messagingSenderId: "954001450032",
+  appId: "1:954001450032:web:8740996f05e1c59a04b9f5"
 };
 
 // Initialize Firebase (Compat)
