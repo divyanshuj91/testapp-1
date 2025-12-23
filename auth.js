@@ -1,12 +1,5 @@
-import { auth, db } from '../shared/firebase_config.js';
-import {
-    createUserWithEmailAndPassword,
-    signInWithEmailAndPassword,
-    updateProfile,
-    fetchSignInMethodsForEmail,
-    sendPasswordResetEmail
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+// Remove imports because we are using the global script tags in HTML
+// Assumes firebase_config.js has defined 'auth' and 'db' globally
 
 // State
 let isLogin = true;
@@ -173,7 +166,7 @@ btnTogglePassword.addEventListener('click', () => {
 
 // 7. MAIN FORM SUBMIT (Login or Send OTP)
 formMain.addEventListener('submit', async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // FIXED: Prevents page reload
     currentEmail = inputEmail.value;
     currentPassword = inputPassword.value;
     const name = inputName.value;
@@ -190,7 +183,8 @@ formMain.addEventListener('submit', async (e) => {
                 return;
             }
 
-            await signInWithEmailAndPassword(auth, currentEmail, currentPassword);
+            // FIXED: Using Compat syntax (auth.signIn...)
+            await auth.signInWithEmailAndPassword(currentEmail, currentPassword);
             window.location.href = 'index.html';
         } catch (err) {
             console.error(err);
@@ -209,7 +203,8 @@ formMain.addEventListener('submit', async (e) => {
 
         try {
             // Check if user exists
-            const methods = await fetchSignInMethodsForEmail(auth, currentEmail);
+            // FIXED: Using Compat syntax
+            const methods = await auth.fetchSignInMethodsForEmail(currentEmail);
             if (methods && methods.length > 0) {
                 alert("⚠️ Account already exists with this email!\nPlease Log In.");
                 isLogin = true;
@@ -221,7 +216,7 @@ formMain.addEventListener('submit', async (e) => {
             // Generate OTP
             const otp = Math.floor(100000 + Math.random() * 900000).toString();
             generatedOtp = otp;
-            console.log("Generated OTP:", otp); // For debugging purposes
+            console.log("Generated OTP:", otp);
 
             // Prepare Email Params
             const templateParams = { to_email: currentEmail, to_name: name, otp: otp };
@@ -230,7 +225,6 @@ formMain.addEventListener('submit', async (e) => {
             try {
                 if (window.emailjs) {
                     await emailjs.send('service_4cagrf9', 'template_ilvzvo4', templateParams);
-
                     console.log("OTP Email Sent");
                 } else {
                     console.error("EmailJS not loaded");
@@ -239,20 +233,7 @@ formMain.addEventListener('submit', async (e) => {
                 }
             } catch (emailErr) {
                 console.error("EmailJS Error:", emailErr);
-                let errMsg = "Unknown Error";
-
-                if (emailErr.text) errMsg = emailErr.text;
-                else if (emailErr.message) errMsg = emailErr.message;
-                else {
-                    const stringified = JSON.stringify(emailErr);
-                    if (stringified === '{}') {
-                        errMsg = "Network Error or AdBlocker preventing request. Try disabling AdBlocker.";
-                    } else {
-                        errMsg = stringified;
-                    }
-                }
-
-                alert("Failed to send email: " + errMsg);
+                alert("Failed to send email. Check console.");
                 setLoading(false, btnMainSubmit, "Get OTP & Join");
                 return;
             }
@@ -263,7 +244,6 @@ formMain.addEventListener('submit', async (e) => {
 
         } catch (err) {
             console.error("Auth Logic Error:", err);
-            // Show exact error to help debugging (e.g. Firebase config missing)
             showError("Error: " + err.message);
         } finally {
             setLoading(false, btnMainSubmit, "Get OTP & Join");
@@ -279,7 +259,6 @@ formOtp.addEventListener('submit', async (e) => {
 
     setLoading(true, btn, "Verify & Complete");
 
-    // In a real app, strict check. Here we check against generatedOtp variable.
     if (enteredOtp !== generatedOtp) {
         showError("❌ Incorrect OTP!");
         setLoading(false, btn, "Verify & Complete");
@@ -287,12 +266,15 @@ formOtp.addEventListener('submit', async (e) => {
     }
 
     try {
-        const userCredential = await createUserWithEmailAndPassword(auth, currentEmail, currentPassword);
+        // FIXED: Using Compat syntax
+        const userCredential = await auth.createUserWithEmailAndPassword(currentEmail, currentPassword);
         const user = userCredential.user;
 
-        await updateProfile(user, { displayName: inputName.value });
+        // FIXED: Using Compat syntax for Profile Update
+        await user.updateProfile({ displayName: inputName.value });
 
-        await setDoc(doc(db, "users", user.uid), {
+        // FIXED: Using Compat syntax for Firestore (db.collection...)
+        await db.collection("users").doc(user.uid).set({
             uid: user.uid,
             name: inputName.value,
             email: currentEmail,
@@ -326,7 +308,8 @@ formForgot.addEventListener('submit', async (e) => {
     setLoading(true, btn, "Send Reset Link");
 
     try {
-        await sendPasswordResetEmail(auth, email);
+        // FIXED: Using Compat syntax
+        await auth.sendPasswordResetEmail(email);
         alert(`✅ Password reset link sent to ${email}.\n\nCheck your INBOX and SPAM folder!`);
         isForgot = false;
         isLogin = true;
