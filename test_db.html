@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Firebase Connection Test</title>
+    <style>
+        body { font-family: sans-serif; padding: 40px; }
+        .status { padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .pending { background: #fff3cd; color: #856404; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h2>Firebase Connection Diagnostic</h2>
+    
+    <div id="step1" class="status pending">Step 1: Loading Config...</div>
+    <div id="step2" class="status pending">Step 2: Testing Authentication...</div>
+    <div id="step3" class="status pending">Step 3: Testing Database Connection...</div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // --- HELPER TO PRINT STATUS ---
+        function setStatus(stepId, message, type) {
+            const el = document.getElementById(stepId);
+            el.textContent = message;
+            el.className = 'status ' + type;
+        }
+
+        // --- 2. YOUR CONFIG (PASTE KEYS HERE) ---
+        // REPLACE THIS SECTION WITH YOUR REAL KEYS
+        const firebaseConfig = {
+            apiKey: "PASTE_YOUR_API_KEY_HERE",
+            authDomain: "PASTE_YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "PASTE_YOUR_PROJECT_ID"
+        };
+        // ----------------------------------------
+
+        try {
+            firebase.initializeApp(firebaseConfig);
+            setStatus('step1', 'Step 1: Config Loaded Successfully', 'success');
+        } catch (e) {
+            setStatus('step1', 'Step 1 Failed: ' + e.message, 'error');
+        }
+
+        // TEST AUTH
+        const auth = firebase.auth();
+        auth.fetchSignInMethodsForEmail("test@example.com")
+            .then(() => {
+                setStatus('step2', 'Step 2: Auth Connected!', 'success');
+                
+                // TEST DATABASE ONLY IF AUTH WORKS
+                const db = firebase.firestore();
+                db.collection("test_connection").add({ timestamp: new Date() })
+                    .then(() => {
+                        setStatus('step3', 'Step 3: Database Connected & Writable!', 'success');
+                    })
+                    .catch((err) => {
+                        setStatus('step3', 'Step 3 Failed (Database): ' + err.message, 'error');
+                    });
+            })
+            .catch((err) => {
+                setStatus('step2', 'Step 2 Failed (Auth): ' + err.message, 'error');
+                console.error(err);
+            });
+    </script>
+</body>
+</html>
